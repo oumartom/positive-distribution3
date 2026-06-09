@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Positive Distribution</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────────── -->
+<div id="login-screen" style="display:none">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:48px;margin-bottom:10px">🥚</div>
+        <div style="font-size:20px;font-weight:700;color:var(--accent)">POSITIVE DISTRIBUTION</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px">Système de gestion v3</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="prenom@positive.gn" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <div style="position:relative">
+          <input type="password" id="login-pwd" class="form-input" placeholder="••••••••" autocomplete="current-password">
+          <button onclick="togglePwd()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer"><i class="fa fa-eye" id="eye-icon"></i></button>
+        </div>
+      </div>
+      <div id="login-error" class="alert alert-danger" style="display:none"></div>
+      <button class="btn btn-primary" id="login-btn" style="width:100%;padding:11px;font-size:14px;justify-content:center;margin-top:4px" onclick="doLogin()">
+        <i class="fa fa-sign-in-alt"></i> Se connecter
+      </button>
+      <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--text3);line-height:1.6">
+        <div style="font-weight:700;color:var(--text2);margin-bottom:6px">Comptes disponibles :</div>
+        <div><b>Admins :</b> oumar, abdoulaye, brahim, zenab @positive.gn</div>
+        <div><b>Commerciaux :</b> bechir, moussa @positive.gn</div>
+        <div style="margin-top:4px"><b>Mot de passe :</b> Positive2026!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────── -->
+<div id="app-screen" style="display:none">
+<div class="app">
+
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🥚</div>
+      <div><div class="logo-text">POSITIVE</div><div class="logo-sub">DISTRIBUTION</div></div>
+    </div>
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><i class="fa fa-chart-pie"></i> Tableau de bord</button>
+    <button class="nav-item" onclick="showPage('ventes')"><i class="fa fa-receipt"></i> Ventes</button>
+    <button class="nav-item" onclick="showPage('livraison')"><i class="fa fa-truck"></i> Livraison du jour</button>
+    <button class="nav-item" onclick="showPage('repartition')"><i class="fa fa-share-alt"></i> Répartition</button>
+    <div class="nav-section">Gestion</div>
+    <button class="nav-item" onclick="showPage('clients')"><i class="fa fa-users"></i> Clients</button>
+    <button class="nav-item" onclick="showPage('recouvrements')"><i class="fa fa-hand-holding-usd"></i> Recouvrements</button>
+    <button class="nav-item" onclick="showPage('impayes')"><i class="fa fa-exclamation-triangle"></i> Impayés <span class="nav-badge" id="badge-impayes">0</span></button>
+    <button class="nav-item" onclick="showPage('stock')"><i class="fa fa-boxes"></i> Stock</button>
+    <button class="nav-item" onclick="showPage('pertes')"><i class="fa fa-ban"></i> Pertes / Casse</button>
+    <div class="nav-section">Finance</div>
+    <button class="nav-item" onclick="showPage('banque')"><i class="fa fa-university"></i> Banque</button>
+    <button class="nav-item" onclick="showPage('rapports')"><i class="fa fa-file-alt"></i> Rapports & PDF</button>
+    <div class="nav-section">Paramètres</div>
+    <button class="nav-item" onclick="showPage('prix')"><i class="fa fa-tags"></i> Prix carton</button>
+    <button class="nav-item" onclick="showPage('import')"><i class="fa fa-file-excel"></i> Import / Export</button>
+    <button class="nav-item admin-only" onclick="showPage('utilisateurs')"><i class="fa fa-user-shield"></i> Utilisateurs</button>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="user-initials">??</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">—</div>
+          <div class="user-role" id="user-role">—</div>
+        </div>
+        <button onclick="api.logout()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:4px" title="Déconnexion"><i class="fa fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Tableau de bord</div>
+      <div class="date-today" id="current-date"></div>
+      <div class="topbar-actions">
+        <button class="theme-btn" onclick="toggleTheme()" title="Thème clair/sombre"><i class="fa fa-moon" id="theme-icon"></i></button>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('rapports')"><i class="fa fa-file-alt"></i> Rapport</button>
+        <button class="btn btn-primary btn-sm" id="main-action-btn" onclick="openMainAction()"><i class="fa fa-plus"></i> <span id="main-action-label">Nouvelle vente</span></button>
+      </div>
+    </div>
+    <div class="content" id="page-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- VENTE (créer/éditer) -->
+<div class="modal-overlay" id="modal-vente">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="vente-modal-title">➕ Nouvelle vente</div>
+      <button class="modal-close" onclick="closeModal('modal-vente')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="v-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="v-date"></div>
+        <div class="form-group"><label class="form-label">Client</label>
+          <select class="form-select" id="v-client" onchange="onClientVenteChange()"><option value="">-- Choisir --</option></select>
+        </div>
+      </div>
+      <div id="v-stock-info" class="alert alert-info" style="display:none;margin-bottom:10px"></div>
+      <div id="v-cat-info" style="display:none;margin-bottom:10px"></div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">Quantité (cartons)</label><input type="number" class="form-input" id="v-qty" placeholder="0" min="1" oninput="calcVente()"></div>
+        <div class="form-group"><label class="form-label">Prix/carton (GNF) <span style="color:var(--accent);font-size:10px">✎ modifiable</span></label><input type="number" class="form-input" id="v-pu" placeholder="0" oninput="calcVente()"></div>
+        <div class="form-group"><label class="form-label">Total</label><input type="text" class="form-input" id="v-total" readonly style="background:var(--bg4)"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Paiement reçu (GNF)</label><input type="number" class="form-input" id="v-payment" placeholder="0" min="0" oninput="calcVente()"></div>
+        <div class="form-group"><label class="form-label">Solde restant</label><input type="text" class="form-input" id="v-solde" readonly style="background:var(--bg4)"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Observations</label><textarea class="form-input" id="v-obs" rows="2" placeholder="Notes..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-vente')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveVente()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT (créer/éditer) -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="client-modal-title">👤 Nouveau client</div>
+      <button class="modal-close" onclick="closeModal('modal-client')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="c-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nom complet</label><input type="text" class="form-input" id="c-nom" placeholder="Nom du client"></div>
+        <div class="form-group"><label class="form-label">Téléphone</label><input type="text" class="form-input" id="c-tel" placeholder="+235 / +224 ..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Catégorie / Tarif</label>
+          <select class="form-select" id="c-cat">
+            <option value="revendeur_principal">Revendeur Principal (29 000)</option>
+            <option value="autre_revendeur" selected>Autre Revendeur (29 500)</option>
+            <option value="patisserie_conso">Patisserie / Conso (33 000)</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Zone / Localité</label><input type="text" class="form-input" id="c-zone" placeholder="Ex: Farcha, Gassi..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Adresse</label><input type="text" class="form-input" id="c-adresse" placeholder="Adresse complète"></div>
+      <div class="form-group"><label class="form-label">Observations</label><textarea class="form-input" id="c-obs" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-client')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveClient()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECOUVREMENT (créer/éditer) -->
+<div class="modal-overlay" id="modal-recouvrement">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="rec-modal-title">💰 Enregistrer un paiement</div>
+      <button class="modal-close" onclick="closeModal('modal-recouvrement')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="r-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client</label>
+          <select class="form-select" id="r-client" onchange="onRecouvrClientChange()"><option value="">-- Choisir --</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date du paiement</label><input type="date" class="form-input" id="r-date"></div>
+      </div>
+      <div id="r-solde-info" style="display:none;margin-bottom:10px"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Montant reçu (GNF)</label><input type="number" class="form-input" id="r-montant" placeholder="0" oninput="calcRestant()"></div>
+        <div class="form-group"><label class="form-label">Restant après paiement</label><input type="text" class="form-input" id="r-restant" readonly style="background:var(--bg4)"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Date de suivi prévue</label><input type="date" class="form-input" id="r-suivi"></div>
+      <div class="form-group"><label class="form-label">Observation</label><textarea class="form-input" id="r-obs" rows="2" placeholder="Mode de paiement, notes..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-recouvrement')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRecouvrement()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div class="modal-overlay" id="modal-stock">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📦 Ajuster le stock</div>
+      <button class="modal-close" onclick="closeModal('modal-stock')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="s-date"></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="s-type">
+            <option value="entree">Entrée (ajout au stock)</option>
+            <option value="sortie">Sortie (retrait du stock)</option>
+            <option value="ajustement">Ajustement (forcer valeur exacte)</option>
+            <option value="perte">Perte / Casse</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">Cartons</label><input type="number" class="form-input" id="s-cartons" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">Plateaux</label><input type="number" class="form-input" id="s-plateaux" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">Œufs seuls</label><input type="number" class="form-input" id="s-oeufs" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Motif</label><input type="text" class="form-input" id="s-motif" placeholder="Raison..."></div>
+      <div class="alert alert-info"><i class="fa fa-info-circle"></i> "Ajustement" : saisissez les valeurs exactes actuelles (ex: 2 cartons, 0 plateaux, 15 œufs).</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-stock')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveStock()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- BANQUE -->
+<div class="modal-overlay" id="modal-banque">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="banque-modal-title">🏦 Mouvement bancaire</div>
+      <button class="modal-close" onclick="closeModal('modal-banque')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="b-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="b-type"><option value="encaissement">Encaissement</option><option value="decaissement">Décaissement</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="b-date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="b-desc" placeholder="Ex: Versement ventes du jour"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Référence</label><input type="text" class="form-input" id="b-ref" placeholder="REF-..."></div>
+        <div class="form-group"><label class="form-label">Montant (GNF)</label><input type="number" class="form-input" id="b-montant" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label class="form-label">📎 Bordereau (optionnel)</label><input type="file" class="form-input" id="b-fichier" accept="image/*,application/pdf"></div>
+      <div class="form-group"><label class="form-label">Commentaires</label><textarea class="form-input" id="b-comment" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-banque')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveBanque()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERTE -->
+<div class="modal-overlay" id="modal-perte">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🚫 Enregistrer une perte</div>
+      <button class="modal-close" onclick="closeModal('modal-perte')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="p-date"></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="p-type"><option value="casse">Casse</option><option value="perte">Perte</option><option value="manquant">Manquant</option><option value="abime">Abîmé</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Quantité (œufs)</label><input type="number" class="form-input" id="p-oeufs" placeholder="0" min="1"></div>
+      <div class="form-group"><label class="form-label">Cause</label><textarea class="form-input" id="p-cause" rows="2" placeholder="Transport, stockage..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-perte')">Annuler</button>
+      <button class="btn btn-danger" onclick="savePerte()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVRAISON -->
+<div class="modal-overlay" id="modal-livraison">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="livr-modal-title">🚚 Saisir une livraison</div>
+      <button class="modal-close" onclick="closeModal('modal-livraison')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="l-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="l-date"></div>
+        <div class="form-group"><label class="form-label">Quantité (cartons)</label><input type="number" class="form-input" id="l-qty" placeholder="0" min="1"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Fournisseur</label><input type="text" class="form-input" id="l-fourn" placeholder="Nom du fournisseur"></div>
+      <div class="form-group"><label class="form-label">📎 Facture de livraison</label><input type="file" class="form-input" id="l-fichier" accept="image/*,application/pdf"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="l-notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-livraison')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveLivraison()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIX -->
+<div class="modal-overlay" id="modal-prix">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏷️ Nouveau prix du carton</div>
+      <button class="modal-close" onclick="closeModal('modal-prix')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Catégorie</label>
+          <select class="form-select" id="px-cat">
+            <option value="revendeur_principal">Revendeur Principal</option>
+            <option value="autre_revendeur">Autre Revendeur</option>
+            <option value="patisserie_conso">Patisserie / Conso</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Date d'effet</label><input type="date" class="form-input" id="px-date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Prix unitaire (GNF/carton)</label><input type="number" class="form-input" id="px-pu" placeholder="0"></div>
+      <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> Ce prix remplace immédiatement le prix actif pour cette catégorie.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-prix')">Annuler</button>
+      <button class="btn btn-primary" onclick="savePrix()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- UTILISATEUR -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="user-modal-title">👤 Nouvel utilisateur</div>
+      <button class="modal-close" onclick="closeModal('modal-user')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="u-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nom</label><input type="text" class="form-input" id="u-nom" placeholder="Prénom Nom"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="u-email" placeholder="prenom@positive.gn"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Rôle</label>
+          <select class="form-select" id="u-role">
+            <option value="1">Admin</option>
+            <option value="2">Commercial</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Mot de passe <span style="color:var(--text3);font-size:10px">(laisser vide = inchangé)</span></label>
+          <input type="password" class="form-input" id="u-pwd" placeholder="Nouveau mot de passe"></div>
+      </div>
+      <div class="form-group" id="u-statut-group" style="display:none"><label class="form-label">Statut</label>
+        <select class="form-select" id="u-statut"><option value="actif">Actif</option><option value="inactif">Inactif</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveUser()"><i class="fa fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
